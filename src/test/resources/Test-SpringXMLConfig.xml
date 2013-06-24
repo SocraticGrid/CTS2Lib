@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xmlns:p="http://www.springframework.org/schema/p"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+          http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+          http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.1.xsd
+">
+    <context:annotation-config/>
+    
+    <bean name="SimpleConfig" class="org.socraticgrid.cts2lib.CTS2Matcher">
+        <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2/map"/>
+        <property name="includeSourceInfo" value="false"/>
+        <property name="usePreferedMatchOnly" value="false"/>
+        <property name="targetSystemMappings">
+            <map>
+                <description>Maps a Target Systen Name to the Target System Mapppings beans</description>
+                <entry key="snomedct">
+                    <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
+                        <property name="sourceCodeSystems">
+                            <map>
+                                <description>Maps Source System to a Source Mapping Bean</description>
+                                <entry key="icd9cm">
+                                    <bean class="org.socraticgrid.cts2lib.SourceMapping">
+                                        <!-- The Prefix of the code for CTS2.0 Lookup -->
+                                        <property name="codePrefix" value="icd9"/>
+                                        <!-- The Map Name on the CTS2.0 System -->
+                                        <property name="mapName" value="ICD9CM_SNOMED_MAP_1TO1"/>
+                                        <!-- The Map Version Name on the CTS 2.0 Server -->
+                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TO1_1"/>
+                                        <!-- String identifing the data source for the mapping -->
+                                        <property name="source" value="UMLS"/>
+                                    </bean>
+                                </entry>
+                                <entry key="icd9cmMulti">
+                                    <description>Example of a 1 to Many Config</description>
+                                    <bean class="org.socraticgrid.cts2lib.SourceMapping">
+                                        <property name="codePrefix" value="icd9"/>
+                                        <property name="mapName" value="ICD9CM_SNOMED_MAP_1TOM"/>
+                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TOM_1"/>
+                                        <property name="source" value="UMLS"/>
+                                        <!-- Enable outputAllMatches -->
+                                        <property name="outputAllMatches" value="true"/>
+                                    </bean>
+                                </entry>      
+                                <entry key="icd10cm">
+                                    <bean class="org.socraticgrid.cts2lib.SourceMapping">
+                                        <property name="codePrefix" value="icd10"/>
+                                        <property name="mapName" value="ICD10CM_SNOMED_MAP_1TO1"/>
+                                        <property name="mapVersion" value="ICD10CM_SNOMED_MAP_1TO1_1"/>
+                                        <property name="source" value="UMLS"/>
+                                        <!-- An Alternate Endpoint for just this source -->
+                                        <property name="endPoint" value="http://10.1.1.1:8080/cts2/map"/>
+                                    </bean>
+                                </entry>
+                            </map>
+                        </property>
+                    </bean>                 
+                </entry>
+                <entry key="icd10cm">
+                    <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
+                        <property name="sourceCodeSystems">
+                            <map>
+                                <description>Maps Source System to a Source Mapping Bean</description>
+                                <entry key="snomedct">
+                                    <bean class="org.socraticgrid.cts2lib.SourceMapping">
+                                        <property name="codePrefix" value="snomedct"/>
+                                        <property name="mapName" value="SNOMED_ICD10_MAP"/>
+                                        <property name="mapVersion" value="SNOMED_ICD10_MAP_1"/>
+                                        <property name="source" value="UMLS"/>
+                                    </bean>
+                                </entry>
+                            </map>
+                        </property>
+                    </bean>                 
+                </entry>
+            </map>
+        </property>
+    </bean>
+</beans>
