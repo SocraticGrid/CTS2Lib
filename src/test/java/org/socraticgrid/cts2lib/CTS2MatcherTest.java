@@ -41,7 +41,6 @@
  */
 package org.socraticgrid.cts2lib;
 
-import java.util.LinkedList;
 import org.junit.After;
 import org.junit.AfterClass;
 
@@ -55,6 +54,7 @@ import org.junit.runner.RunWith;
 
 import org.socraticgrid.codeconversion.elements.CodeReference;
 import org.socraticgrid.codeconversion.elements.CodeSearch;
+import org.socraticgrid.codeconversion.elements.SearchOptions;
 import org.socraticgrid.codeconversion.matchers.MatchContract;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,12 +65,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.socraticgrid.codeconversion.elements.SearchOptions;
 
 
 /**
+ * DOCUMENT ME!
+ *
  * @author  Jerry Goodnough
  */
 @ContextConfiguration(locations = { "classpath:Test-SpringXMLConfig.xml" })
@@ -113,7 +115,7 @@ public class CTS2MatcherTest
         System.out.println("getCTS2Endpoint");
 
         CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
-        String expResult = "http://192.168.1.104:8080/cts2/map";
+        String expResult = "http://192.168.1.104:8080/cts2";
         String result = instance.getCTS2Endpoint();
         assertEquals(expResult, result);
 
@@ -144,7 +146,7 @@ public class CTS2MatcherTest
         CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
 
         Map result = instance.getTargetSystemMappings();
-           assertNotNull(result);
+        assertNotNull(result);
 
 
     }
@@ -160,6 +162,20 @@ public class CTS2MatcherTest
         CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
         instance.initialize();
 
+    }
+
+    /**
+     * Test testInternalDescriptionLookup.
+     */
+    @Test
+    public void testInternalDescriptionLookup()
+    {
+        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
+        TargetSystemMappings tsm = instance.getTargetSystemMappings().get("icd9cm");
+        String code = "366.41";
+        String result = instance.internalDesciptionLookup(tsm, code);
+        assertNotNull(result);
+        assertTrue(result.compareTo("Diabetic cataract") == 0);
     }
 
     /**
@@ -203,18 +219,19 @@ public class CTS2MatcherTest
         CodeSearch matchCd = new CodeSearch();
         matchCd.setTargetSystem("snomedct");
         matchCd.setSystem("icd9cm");
-        matchCd.setSearchType(SearchOptions.LITERAL_Code+SearchOptions.ANY_Display+SearchOptions.LITERAL_TargetSystem);
+        matchCd.setSearchType(SearchOptions.LITERAL_Code +
+            SearchOptions.ANY_Display + SearchOptions.LITERAL_TargetSystem);
         matchCd.setCode("414.01");
-        List<CodeReference> matchingCodeList = new LinkedList<>() ;
-        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
-        
 
-  
+        List<CodeReference> matchingCodeList = new LinkedList<>();
+        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
+
+
         boolean result = instance.match(matchCd, matchingCodeList);
         assertTrue(result);
-        assertTrue(matchingCodeList.size()>0);
-        assertTrue(matchingCodeList.get(0).getCode().compareTo("53741008")==0);
-        //Expected code is 53741008
+        assertTrue(matchingCodeList.size() > 0);
+        assertTrue(matchingCodeList.get(0).getCode().compareTo("53741008") == 0);
+        // Expected code is 53741008
     }
 
     /**
@@ -276,4 +293,17 @@ public class CTS2MatcherTest
         instance.setUsePreferedMatchOnly(usePreferedMatchOnly);
 
     }
+
+    @Test
+    public void theBuildEntityLookupURL()
+    {
+        String expected =
+            "http://192.168.1.104:8080/cts2/codesystem/ICD-9-CM_Diagnoses/version/ICD-9-CM_Diagnoses_9/entity/366.41";
+        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
+        TargetSystemMappings tsm = instance.getTargetSystemMappings().get("icd9cm");
+        String code = "366.41";
+        String result = instance.buildEntityLookupURL(code, tsm);
+        assertEquals(result, expected);
+    }
+
 }

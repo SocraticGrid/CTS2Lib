@@ -15,7 +15,7 @@
     <context:annotation-config/>
     
     <bean name="SimpleConfig" class="org.socraticgrid.cts2lib.CTS2Matcher">
-        <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2/map"/>
+        <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2"/>
         <property name="includeSourceInfo" value="false"/>
         <property name="usePreferedMatchOnly" value="false"/>
         <property name="targetSystemMappings">
@@ -23,6 +23,10 @@
                 <description>Maps a Target Systen Name to the Target System Mapppings beans</description>
                 <entry key="snomedct">
                     <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
+                        <!-- Provide the target system entity name -->
+                        <property name="targetCTS2CodeSystemName" value="snomedct"/>
+                        <!-- Provide the tager System Entity Version (-->
+                        <property name="targetCTS2CodeSystemVersion" value="snomedct_9"/>
                         <property name="sourceCodeSystems">
                             <map>
                                 <description>Maps Source System to a Source Mapping Bean</description>
@@ -35,7 +39,7 @@
                                         <!-- The Map Version Name on the CTS 2.0 Server -->
                                         <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TO1_1"/>
                                         <!-- String identifing the data source for the mapping -->
-                                        <property name="source" value="UMLS"/>
+                                        <property name="source" value="UMLS"/>                               
                                     </bean>
                                 </entry>
                                 <entry key="icd9cmMulti">
