@@ -1,16 +1,18 @@
 CTS2Lib
-=======
+======================================================================================
  
  Author: Jerry Goodnough (jgoodnough@cognitivemedicine.com)
  
  Commiters: Jerry Goodnough (jgoodnough@cognitivemedicine.com)
  
+======================================================================================
  Notes:  
-=================================================================================
+======================================================================================
  Implements SocraticGrid CodeConversion and relies on the CTS2.0 Framework.
  
  Tests currently rely on a working CTS2.0 Server with specific code sets loaded.
  
+======================================================================================
  Major Usage:
 ======================================================================================
 

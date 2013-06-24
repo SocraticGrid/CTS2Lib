@@ -293,7 +293,9 @@ public class CTS2MatcherTest
         instance.setUsePreferedMatchOnly(usePreferedMatchOnly);
 
     }
-
+    /**
+     * Test That lookup URL is as expected
+     */
     @Test
     public void theBuildEntityLookupURL()
     {
