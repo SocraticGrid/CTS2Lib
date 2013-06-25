@@ -68,6 +68,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 
 
 /**
@@ -233,7 +234,41 @@ public class CTS2MatcherTest
         assertTrue(matchingCodeList.get(0).getCode().compareTo("53741008") == 0);
         // Expected code is 53741008
     }
+    /**
+     * Test of match method, of class CTS2Matcher.
+     * With the description enabled
+     * 
+     * Currently disabled until SNOMED is loaded.
+     */
+    @Test
+    @Ignore
+    public void testMatchWithDescription()
+    {
+        System.out.println("match with description");
 
+        CodeSearch matchCd = new CodeSearch();
+        matchCd.setTargetSystem("snomedct");
+        matchCd.setSystem("icd9cm");
+        matchCd.setSearchType(SearchOptions.LITERAL_Code +
+            SearchOptions.ANY_Display + SearchOptions.LITERAL_TargetSystem);
+        matchCd.setCode("414.01");
+        String expectedDesc = "Not yet Defined";
+                
+        List<CodeReference> matchingCodeList = new LinkedList<>();
+        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
+       
+
+        TargetSystemMappings tsm = instance.getTargetSystemMappings().get("snomedct");
+        //Turn on display lookup
+        tsm.getSourceCodeSystems().get("icd9cm").setFetchDisplay(true);
+
+        boolean result = instance.match(matchCd, matchingCodeList);
+        assertTrue(result);
+        assertTrue(matchingCodeList.size() > 0);
+        assertTrue(matchingCodeList.get(0).getCode().compareTo("53741008") == 0);
+        // Expected code is 53741008
+        assertTrue(matchingCodeList.get(0).getDisplay().compareTo(expectedDesc) ==0);
+    }
     /**
      * Test of setCTS2Endpoint method, of class CTS2Matcher.
      */

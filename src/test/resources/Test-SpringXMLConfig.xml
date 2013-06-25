@@ -13,7 +13,6 @@
           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.1.xsd
 ">
     <context:annotation-config/>
-    
     <bean name="SimpleConfig" class="org.socraticgrid.cts2lib.CTS2Matcher">
         <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2"/>
         <property name="includeSourceInfo" value="false"/>
@@ -23,6 +22,10 @@
                 <description>Maps a Target Systen Name to the Target System Mapppings beans</description>
                 <entry key="snomedct">
                     <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
+                        <!-- Provide the target system entity name -->
+                        <property name="targetCTS2CodeSystemName" value="SNOMED_CT"/>
+                        <!-- Provide the tager System Entity Version (-->
+                        <property name="targetCTS2CodeSystemVersion" value="SNOMED_CT_UMLS-2013-06"/>
                         <property name="sourceCodeSystems">
                             <map>
                                 <description>Maps Source System to a Source Mapping Bean</description>
