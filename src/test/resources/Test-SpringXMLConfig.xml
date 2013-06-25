@@ -15,7 +15,7 @@
     <context:annotation-config/>
     
     <bean name="SimpleConfig" class="org.socraticgrid.cts2lib.CTS2Matcher">
-        <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2/map"/>
+        <property name="cTS2Endpoint" value="http://192.168.1.104:8080/cts2"/>
         <property name="includeSourceInfo" value="false"/>
         <property name="usePreferedMatchOnly" value="false"/>
         <property name="targetSystemMappings">
@@ -62,6 +62,27 @@
                             </map>
                         </property>
                     </bean>                 
+                </entry>
+                <entry key="icd9cm">
+                    <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
+                        <!-- Provide the target system entity name -->
+                        <property name="targetCTS2CodeSystemName" value="ICD-9-CM_Diagnoses"/>
+                        <!-- Provide the tager System Entity Version (-->
+                        <property name="targetCTS2CodeSystemVersion" value="ICD-9-CM_Diagnoses_9"/>
+                        <property name="sourceCodeSystems">
+                            <map>
+                                <description>Maps Source System to a Source Mapping Bean</description>
+                                <entry key="snomedct">
+                                    <bean class="org.socraticgrid.cts2lib.SourceMapping">
+                                        <property name="codePrefix" value="snomedct"/>
+                                        <property name="mapName" value="SNOMED_ICD10_MAP"/>
+                                        <property name="mapVersion" value="SNOMED_ICD10_MAP_1"/>
+                                        <property name="source" value="UMLS"/>
+                                    </bean>
+                                </entry>
+                            </map>
+                        </property>
+                    </bean>
                 </entry>
                 <entry key="icd10cm">
                     <bean class="org.socraticgrid.cts2lib.TargetSystemMappings">
