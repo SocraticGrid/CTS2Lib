@@ -364,9 +364,7 @@ public class CTS2Matcher extends BaseMatcher
 
                         if (sm.isFetchDisplay())
                         {
-
-                            // TODO: Normalize the Display Value
-                            text = "Display Lookup not yet implemented";
+                            text = this.internalDesciptionLookup(tsm, code);
                         }
                         else
                         {
