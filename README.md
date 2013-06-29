@@ -16,7 +16,7 @@ CTS2Lib
  Major Usage:
 ======================================================================================
 
-Tje class org.socraticgrid.cts2lib.CTS2Matcher implements CodeMatcher as is designed 
+The class org.socraticgrid.cts2lib.CTS2Matcher implements CodeMatcher as is designed 
 to run in the context of the CodeConversion process. Example Spring configuration 
 files are provided. By default a CTS2Matcher will not provide normalized descriptions 
 for the matching codes, since this requires an additional REST call to the entity 
