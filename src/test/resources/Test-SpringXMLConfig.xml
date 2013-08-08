@@ -36,7 +36,7 @@
                                         <!-- The Map Name on the CTS2.0 System -->
                                         <property name="mapName" value="ICD9CM_SNOMED_MAP_1TO1"/>
                                         <!-- The Map Version Name on the CTS 2.0 Server -->
-                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TO1_1"/>
+                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TO1_UMLS-2012-05"/>
                                         <!-- String identifing the data source for the mapping -->
                                         <property name="source" value="UMLS"/>
                                     </bean>
@@ -46,7 +46,7 @@
                                     <bean class="org.socraticgrid.cts2lib.SourceMapping">
                                         <property name="codePrefix" value="icd9"/>
                                         <property name="mapName" value="ICD9CM_SNOMED_MAP_1TOM"/>
-                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TOM_1"/>
+                                        <property name="mapVersion" value="ICD9CM_SNOMED_MAP_1TOM_UMLS-2012-05"/>
                                         <property name="source" value="UMLS"/>
                                         <!-- Enable outputAllMatches -->
                                         <property name="outputAllMatches" value="true"/>

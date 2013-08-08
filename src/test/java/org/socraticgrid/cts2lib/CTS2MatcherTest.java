@@ -343,4 +343,27 @@ public class CTS2MatcherTest
         assertEquals(result, expected);
     }
 
+    
+      @Test
+    public void testMatch491_9()
+    {
+        System.out.println("match 491.9");
+
+        CodeSearch matchCd = new CodeSearch();
+        matchCd.setTargetSystem("snomedct");
+        matchCd.setSystem("icd9cm");
+        matchCd.setSearchType(SearchOptions.LITERAL_Code +
+            SearchOptions.ANY_Display + SearchOptions.LITERAL_TargetSystem);
+        matchCd.setCode("491.9");
+
+        List<CodeReference> matchingCodeList = new LinkedList<>();
+        CTS2Matcher instance = (CTS2Matcher) ctx.getBean("SimpleConfig");
+
+
+        boolean result = instance.match(matchCd, matchingCodeList);
+        assertTrue(result);
+        assertTrue(matchingCodeList.size() > 0);
+        assertTrue(matchingCodeList.get(0).getCode().compareTo("63480004") == 0);
+        // Expected code is 53741008
+    }
 }

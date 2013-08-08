@@ -46,10 +46,10 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
+
 import edu.mayo.cts2.framework.model.entity.Designation;
 import edu.mayo.cts2.framework.model.entity.EntityDescriptionMsg;
 import edu.mayo.cts2.framework.model.entity.types.DesignationRole;
-
 import edu.mayo.cts2.framework.model.mapversion.MapEntryDirectory;
 import edu.mayo.cts2.framework.model.mapversion.MapEntryDirectoryEntry;
 
@@ -64,6 +64,9 @@ import org.socraticgrid.codeconversion.matchers.BaseMatcher;
 import org.socraticgrid.codeconversion.matchers.MatchContract;
 
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+
+import java.net.URLEncoder;
 
 import java.util.Iterator;
 import java.util.List;
@@ -78,13 +81,12 @@ import javax.annotation.PostConstruct;
  * Match a search against a CTS 2.0 System via a Rest call. Currently only supports
  * literal target and source
  *
- *  TODO:   Move text to resources 
- * 
+ * <p>TODO: Move text to resources</p>
+ *
  * @author  Jerry Goodnough
  */
 public class CTS2Matcher extends BaseMatcher
 {
-
     private static final Logger logger = Logger.getLogger(CTS2Matcher.class
             .getName());
     private String CTS2Endpoint;
@@ -93,7 +95,7 @@ public class CTS2Matcher extends BaseMatcher
     private boolean usePreferedMatchOnly = false;
 
     /**
-     * Get the value of CTS2Endpoint
+     * Get the value of CTS2Endpoint.
      *
      * @return  the value of CTS2Endpoint
      */
@@ -109,7 +111,7 @@ public class CTS2Matcher extends BaseMatcher
     }
 
     /**
-     * Get the value of targetSystemMappings
+     * Get the value of targetSystemMappings.
      *
      * @return  the value of targetSystemMappings
      */
@@ -148,7 +150,6 @@ public class CTS2Matcher extends BaseMatcher
 
         // Filter out Searches that are not literal for now.
         int searchType = matchCd.getSearchType();
-
         int mask = SearchOptions.LITERAL_Code + SearchOptions.ANY_Display +
             SearchOptions.LITERAL_TargetSystem;
 
@@ -196,14 +197,13 @@ public class CTS2Matcher extends BaseMatcher
             logger.log(Level.WARNING,
                 "CTS2Matcher does not support Target System of  {0}",
                 matchCd.getTargetSystem());
-
         }
 
         return true;
     }
 
     /**
-     * Set the value of CTS2Endpoint
+     * Set the value of CTS2Endpoint.
      *
      * @param  CTS2Endpoint  new value of CTS2Endpoint
      */
@@ -213,7 +213,7 @@ public class CTS2Matcher extends BaseMatcher
     }
 
     /**
-     * Set the value of includeSourceInfo
+     * Set the value of includeSourceInfo.
      *
      * @param  includeSourceInfo  new value of includeSourceInfo
      */
@@ -223,7 +223,7 @@ public class CTS2Matcher extends BaseMatcher
     }
 
     /**
-     * Set the value of targetSystemMappings
+     * Set the value of targetSystemMappings.
      *
      * @param  targetSystemMappings  new value of targetSystemMappings
      */
@@ -234,7 +234,7 @@ public class CTS2Matcher extends BaseMatcher
     }
 
     /**
-     * Set the value of usePreferedMatchOnly
+     * Set the value of usePreferedMatchOnly.
      *
      * @param  usePreferedMatchOnly  new value of usePreferedMatchOnly
      */
@@ -243,25 +243,28 @@ public class CTS2Matcher extends BaseMatcher
         this.usePreferedMatchOnly = usePreferedMatchOnly;
     }
 
-    /**
-     */
-    @PostConstruct
-    protected void initialize()
+    protected String buildEntityLookupURL(String code, TargetSystemMappings tsm)
     {
+        StringBuilder baseURL = new StringBuilder();
+        baseURL.append(CTS2Endpoint);
 
-        // Build the match contract
-        Iterator itr = targetSystemMappings.keySet().iterator();
+        // Add the map name
+        baseURL.append("/codesystem/");
+        baseURL.append(tsm.getTargetCTS2CodeSystemName());
 
-        while (itr.hasNext())
-        {
-            contract.addTargetSystem((String) itr.next());
-        }
+        // Add the version
+        baseURL.append("/version/");
+        baseURL.append(tsm.getTargetCTS2CodeSystemVersion());
+
+        // Add the Query
+        baseURL.append("/entity/");
+        baseURL.append(code);
+
+        return baseURL.toString();
     }
 
     protected String buildMapLookupURL(CodeSearch matchCd, SourceMapping sm)
     {
-
-
         StringBuilder baseURL = new StringBuilder();
 
         // Form the base endpoint
@@ -286,41 +289,38 @@ public class CTS2Matcher extends BaseMatcher
         baseURL.append("/entries?targetentity=");
         baseURL.append(sm.getCodePrefix());
         baseURL.append(":");
-        baseURL.append(matchCd.getCode());
 
-        return baseURL.toString();
-    }
-    
-     protected String buildEntityLookupURL(String code, TargetSystemMappings tsm)
-    {
-
-
-        StringBuilder baseURL = new StringBuilder();
-
-        baseURL.append(CTS2Endpoint);
-        
-
-        // Add the map name
-        baseURL.append("/codesystem/");
-        baseURL.append(tsm.getTargetCTS2CodeSystemName());
-
-        // Add the version
-        baseURL.append("/version/");
-        baseURL.append(tsm.getTargetCTS2CodeSystemVersion());
-
-        // Add the Query
-        baseURL.append("/entity/");
-        baseURL.append(code);
+        try
+        {
+            baseURL.append(URLEncoder.encode(matchCd.getCode(), "UTF-8"));
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            logger.log(Level.SEVERE, null, ex);
+        }
         return baseURL.toString();
     }
 
-    private void internalLookup(CodeSearch matchCd,
-        List<CodeReference> matchingCodeList, TargetSystemMappings tsm, SourceMapping sm)
+    /**
+     * DOCUMENT ME!
+     */
+    @PostConstruct
+    protected void initialize()
     {
 
-        //
-        String url = buildMapLookupURL(matchCd, sm);
+        // Build the match contract
+        Iterator itr = targetSystemMappings.keySet().iterator();
 
+        while (itr.hasNext())
+        {
+            contract.addTargetSystem((String) itr.next());
+        }
+    }
+
+    protected String internalDesciptionLookup(TargetSystemMappings tsm, String code)
+    {
+        String url = this.buildEntityLookupURL(code, tsm);
+        String out = "Description not available";
 
         try
         {
@@ -335,13 +335,105 @@ public class CTS2Matcher extends BaseMatcher
             {
                 logger.log(Level.SEVERE, "Failed : HTTP error code : {0}",
                     response.getStatus());
+
+                return "Description Service Unavaliable";
+            }
+
+            String output = response.getEntity(String.class);
+            StringReader reader = new StringReader(output);
+            EntityDescriptionMsg entity = EntityDescriptionMsg
+                .unmarshalEntityDescriptionMsg(reader);
+
+            if (entity != null)
+            {
+
+                if (entity.getEntityDescription() != null)
+                {
+
+                    if (entity.getEntityDescription().getClassDescription() != null)
+                    {
+                        Designation[] da = entity.getEntityDescription()
+                            .getClassDescription().getDesignation();
+
+                        // Look for the preferred role
+                        int pref = -1;
+
+                        for (int i = 0; i < da.length; i++)
+                        {
+                            DesignationRole role = da[i].getDesignationRole();
+
+                            if (role != null)
+                            {
+
+                                if (role == DesignationRole.PREFERRED)
+                                {
+
+                                    // Set the Id and break the loop since we have
+                                    // found a preferred description
+                                    pref = i;
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (pref != -1)
+                        {
+                            out = da[pref].getValue().getContent();
+                        }
+                        else if (da.length > 0)
+                        {
+
+                            // No preferred Description so we will use the first
+                            // entry In the future the TargetSystemMap might be
+                            // modified to Support the preferred entry number
+                            out = da[0].getValue().getContent();
+                        }
+                        else
+                        {
+                            out = "Description not in CTS 2.0 Service";
+                        }
+                    }
+                }
+            }
+        }
+        catch (UniformInterfaceException | ClientHandlerException |
+                MarshalException | ValidationException | IndexOutOfBoundsException e)
+        {
+            logger.log(Level.SEVERE,
+                "Exception calling CTS 2.0 rest service on " + url, e);
+        }
+
+        return out;
+    }
+
+    private void internalLookup(CodeSearch matchCd,
+        List<CodeReference> matchingCodeList, TargetSystemMappings tsm,
+        SourceMapping sm)
+    {
+
+        //
+        String url = buildMapLookupURL(matchCd, sm);
+
+        try
+        {
+
+            // get the code mapping
+            Client client = Client.create();
+            WebResource webResource = client.resource(url);
+            ClientResponse response = webResource.accept("text/xml").get(
+                    ClientResponse.class);
+
+            if (response.getStatus() != 200)
+            {
+                logger.log(Level.SEVERE, "Failed : HTTP error code : {0}",
+                    response.getStatus());
+
                 return;
             }
 
             String output = response.getEntity(String.class);
             StringReader reader = new StringReader(output);
-
-
             MapEntryDirectory mapEntryDirectory = MapEntryDirectory
                 .unmarshalMapEntryDirectory(reader);
 
@@ -356,10 +448,7 @@ public class CTS2Matcher extends BaseMatcher
                     for (int i = 0; i < size; i++)
                     {
                         MapEntryDirectoryEntry ent = mapEntryDirectory.getEntry(i);
-
                         String code = ent.getResourceName();
-
-
                         String text;
 
                         if (sm.isFetchDisplay())
@@ -372,7 +461,6 @@ public class CTS2Matcher extends BaseMatcher
                         }
 
                         String system = matchCd.getTargetSystem();
-
                         CodeReference cr = new CodeReference(system, code, text);
 
                         if (sm.getSource() != null)
@@ -397,16 +485,13 @@ public class CTS2Matcher extends BaseMatcher
                         }
 
                         matchingCodeList.add(cr);
-
                     }
                 }
                 else
                 {
 
                     // Find the strongest Match
-
                     double maxMatch = -1;
-
                     MapEntryDirectoryEntry ent;
                     MapEntryDirectoryEntry bestEntry = null;
 
@@ -434,8 +519,6 @@ public class CTS2Matcher extends BaseMatcher
                     }
 
                     String code = bestEntry.getResourceName();
-
-
                     String text;
 
                     if (sm.isFetchDisplay())
@@ -448,7 +531,6 @@ public class CTS2Matcher extends BaseMatcher
                     }
 
                     String system = matchCd.getTargetSystem();
-
                     CodeReference cr = new CodeReference(system, code, text);
 
                     if (sm.getSource() != null)
@@ -460,7 +542,6 @@ public class CTS2Matcher extends BaseMatcher
                     }
 
                     matchingCodeList.add(cr);
-
                 }
             }
         }
@@ -470,89 +551,5 @@ public class CTS2Matcher extends BaseMatcher
             logger.log(Level.SEVERE,
                 "Exception calling CTS 2.0 rest service on " + url, e);
         }
-
-
-    }
-    
-    protected String internalDesciptionLookup(TargetSystemMappings tsm, String code)
-    {
-      
-        String url = this.buildEntityLookupURL(code, tsm);
-        String out = "Description not available";
-
-        try
-        {
-
-            // get the code mapping
-            Client client = Client.create();
-            WebResource webResource = client.resource(url);
-            ClientResponse response = webResource.accept("text/xml").get(
-                    ClientResponse.class);
-
-            if (response.getStatus() != 200)
-            {
-                logger.log(Level.SEVERE, "Failed : HTTP error code : {0}",
-                    response.getStatus());
-                return "Description Service Unavaliable";
-            }
-
-            String output = response.getEntity(String.class);
-            StringReader reader = new StringReader(output);
-
-
-            
-            EntityDescriptionMsg entity = EntityDescriptionMsg.unmarshalEntityDescriptionMsg(reader);
-            if (entity!=null)
-            {    
-                if ( entity.getEntityDescription() != null)
-                {
-                    if (entity.getEntityDescription().getClassDescription()!= null)
-                    {
-                        
-                        Designation[] da=  entity.getEntityDescription().getClassDescription().getDesignation();
-                        //Look for the preferred role
-                        int pref = -1;
-                        for (int i = 0; i<da.length; i++)
-                        {
-                            DesignationRole role = da[i].getDesignationRole();
-                            if (role != null)
-                            {
-                                if (role ==DesignationRole.PREFERRED)
-                                {
-                                    //Set the Id and break the loop since we have found a preferred description
-                                    pref = i;
-                                    break;
-                                }
-                            }    
-                        }
-                        if (pref != -1)
-                        {
-                           out = da[pref].getValue().getContent();
-                        }
-                        else if (da.length>0)
-                        {
-                
-                            //No preferred Description so we will use the first entry
-                            //In the future the TargetSystemMap might be modified to 
-                            //Support the preferred entry number
-                             out = da[0].getValue().getContent();
-                        }
-                        else
-                        {
-                            out = "Description not in CTS 2.0 Service";
-                        }
-                    }
-                }
-            }
-         
-        }
-        catch (UniformInterfaceException | ClientHandlerException |
-                MarshalException | ValidationException | IndexOutOfBoundsException e)
-        {
-            logger.log(Level.SEVERE,
-                "Exception calling CTS 2.0 rest service on " + url, e);
-        }  
-        
-        return out;
     }
 }
